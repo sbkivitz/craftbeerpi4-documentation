@@ -159,3 +159,75 @@ The Brewfather API limits the recipe download to batches of 50 recipes. If you h
 ![Brewfather Offset dropdown menu to select more recipes](../../.gitbook/assets/cbpi4-recipe-upload-create-bf-offset.png)
 
 If you have for instance 75 recipes defined in your brewfather account, you can select recipe 1-50 with the offset 0 and recipe 51 to 75 with the offset 50. With the offset, you can select up to 250 different recipes from your Brewfather account.
+
+## Details worth knowing before you create a recipe
+
+The points below apply to all four sources. They are the ones most likely to
+surprise you on a brew day.
+
+### Temperatures in a beerxml file are always in °C
+
+This is separate from the warning about the default boil and cool-down settings
+further up the page. Those are CraftbeerPi settings. This is about the file itself.
+
+The beerxml standard defines step temperatures in Celsius, and CraftbeerPi follows
+it. When your system is set to F, the value in the file is converted for you during
+recipe creation.
+
+{% hint style="danger" %}
+If you operate in F, do **not** write Fahrenheit values into a beerxml file. A step
+written as `<STEP_TEMP>152.0</STEP_TEMP>` is read as 152 °C and becomes a 305 °F
+mash step.
+
+Write `67.0` for a 152 °F rest and let CraftbeerPi convert it.
+{% endhint %}
+
+This only matters if you write or edit the xml by hand, or generate it from a
+script. Files exported by Beersmith, Brewfather or KBH2 already hold Celsius
+values, so the normal export-and-import route is unaffected.
+
+### Creating a recipe replaces your current mash profile
+
+Creating a recipe from any source overwrites the steps currently loaded in
+[Mash Profile](mash-profile.md). It does not add an entry to the recipe book on its
+own.
+
+{% hint style="warning" %}
+If you have a mash profile you want to keep, save it to the recipe book **before**
+you create a recipe from an uploaded file. Otherwise it is replaced without a
+prompt.
+{% endhint %}
+
+### A mash tun has to be configured first
+
+Recipe creation needs the MashTun kettle set in the
+[recipe creation settings](settings.md#recipe-creation-settings). Without it, creation
+fails rather than falling back to a default kettle.
+
+### Fractional mash temperatures are rounded down
+
+A step temperature of `67.5` °C is used as `67` °C. If half a degree matters to
+you, round the value yourself in the source recipe so you control the direction.
+
+### Six boil additions, shared between hops and miscs
+
+Hops and miscellaneous additions are merged into one list, sorted from the longest
+boil time to the shortest, and placed into the six hop alert slots of the boil step.
+A misc addition can therefore appear in a slot labelled "Hop" — that is normal.
+
+A recipe with four hop additions and two kettle finings already fills all six slots.
+A seventh addition is dropped without a warning, so check the boil step after
+creating a recipe from a heavily hopped schedule.
+
+{% hint style="info" %}
+Whirlpool and hop-stand additions do not use these slots. Hops with a use of
+'Aroma' create a separate whirlpool step based on their temperature.
+{% endhint %}
+
+### If nothing appears in the drop-down after an upload
+
+The upload accepts xml, JSON and sqlite files. If a file is sent with an unexpected
+type, the upload can report success while storing nothing, and the drop-down stays
+empty. Check that the file really is the format you think it is — a beerxml file
+saved with a `.txt` extension is the usual cause — and upload it again.
+
