@@ -1,10 +1,73 @@
 # Sensor data logging (CSV or InfluxDB)
 
+## Moving the logs off the SD card
+
+An SD card wears out from **writes**, and on a running CraftBeerPi almost all of
+the writes are logs: `cbpi.log` plus one rotating CSV per sensor. Rotation caps
+how much space they occupy — it does nothing to reduce how much is written.
+
+Both can be relocated together. Point them at a USB stick or a mounted network
+share and the wear leaves the card entirely.
+
+**In `config.yaml`** — the easier option on a normal install:
+
+```yaml
+logs-folder-path: /mnt/usb/cbpi-logs
+```
+
+**On the command line**, which takes precedence:
+
+```bash
+cbpi -c /home/pi/config -l /mnt/usb/cbpi-logs start
+```
+
+With systemd you can edit the unit's `ExecStart`, but using `config.yaml` means
+you never have to touch the unit file.
+
+{% hint style="info" %}
+This moves **everything** that is written frequently: `cbpi.log` and every
+`sensor_*.log`. Your configuration stays where it is, so the system still boots
+if the drive is missing — CraftBeerPi warns and carries on rather than refusing
+to start.
+{% endhint %}
+
+### How much does it actually write?
+
+Roughly one 27-byte row per sensor per reading, so what dominates is the
+**sensor publish interval**, not the number of sensors:
+
+| OneWire `Interval` | 3 sensors | Per year |
+| --- | --- | --- |
+| 60 s (default) | ~117 KB/day | ~43 MB |
+| 10 s | ~700 KB/day | ~250 MB |
+| 1 s | ~7 MB/day | ~2.5 GB |
+
+{% hint style="warning" %}
+If you do not need per-second resolution, raising the sensor `Interval` is the
+single most effective thing you can do for SD card life. A mash moves slowly; a
+reading every 10 or 30 seconds loses nothing you care about.
+{% endhint %}
+
+### Two servers must not share a logs folder
+
+If you run a second instance — a test rig, a simulator, a staging copy — give it
+its **own** logs folder. Two servers writing the same `sensor_*.log` files
+interleave their rows into one file, and rotation then fails outright:
+
+```
+PermissionError: [WinError 32] The process cannot access the file
+because it is being used by another process
+```
+
+Each instance needs its own `logs-folder-path`.
+
+## CSV logging
+
 The data retrieved by sensors can be logged in different ways. The default is csv logging. CSV files will be stored for each sensor and the log is rotating. This means, that up to 4 csv files with 1 Mb per file can be created per sensor. Some sensors write one data point per second. If you have various sensors, plenty of write cycle will be done per second which is not good for the health of an SD card. In addition to that dashboard charts will read from those files which may drive up the CPU usage to 100% and may cause an unresponsive Interface in particular, when you are using a screen that is directly connected to your pi.
 
 Therefore, it is not recommended to use charts in your brewing or fermentation dashboard. I recommend to use the analytics page instead.
 
-To reduce the write cycles to the sd card, you could symlink the log folder also to an external hdd or even a network folder.
+To reduce the write cycles to the sd card, you can move the log folder to a USB drive or a network share — see [Moving the logs off the SD card](#moving-the-logs-off-the-sd-card) below.
 
 If you are not using the log files and charts at all, it is recommended to switch of csv logging, which can be done on the [settings page](settings.md#global-system-parameters) via the parameter CSVLOGFILES. Set this parameter to 'No'.
 

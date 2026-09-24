@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 380" width="880" height="380" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c62828"/>
+    </marker>
+  </defs>
+
+  <rect width="880" height="380" fill="#ffffff"/>
+  <text x="20" y="30" font-size="17" font-weight="600" fill="#263238">HERMS cascade: the mash loop sets the HLT's target, not the element</text>
+
+  <!-- outer loop -->
+  <rect x="20" y="62" width="196" height="76" rx="6" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="118" y="88" font-size="13" font-weight="600" text-anchor="middle" fill="#174ea6">Outer loop (mash)</text>
+  <text x="118" y="108" font-size="11.5" text-anchor="middle" fill="#37474f">P / I / D</text>
+  <text x="118" y="126" font-size="11.5" text-anchor="middle" fill="#37474f">output = degrees of offset</text>
+
+  <!-- band -->
+  <rect x="258" y="62" width="196" height="76" rx="6" fill="#fff8e1" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="356" y="88" font-size="13" font-weight="600" text-anchor="middle" fill="#a1660a">Band limit</text>
+  <text x="356" y="108" font-size="11.5" text-anchor="middle" fill="#37474f">0 .. DeltaTemp</text>
+  <text x="356" y="126" font-size="11.5" text-anchor="middle" fill="#37474f">(MashIn_DeltaTemp, no grain)</text>
+
+  <!-- inner loop -->
+  <rect x="496" y="62" width="196" height="76" rx="6" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="594" y="88" font-size="13" font-weight="600" text-anchor="middle" fill="#174ea6">Inner loop (HLT)</text>
+  <text x="594" y="108" font-size="11.5" text-anchor="middle" fill="#37474f">HLT_P / HLT_I / HLT_D</text>
+  <text x="594" y="126" font-size="11.5" text-anchor="middle" fill="#37474f">output = heater percent</text>
+
+  <!-- element -->
+  <rect x="734" y="62" width="126" height="76" rx="6" fill="#ffebee" stroke="#c62828" stroke-width="1.5"/>
+  <text x="797" y="94" font-size="13" font-weight="600" text-anchor="middle" fill="#b71c1c">HLT element</text>
+  <text x="797" y="114" font-size="11.5" text-anchor="middle" fill="#37474f">duty cycle</text>
+
+  <line x1="216" y1="100" x2="252" y2="100" stroke="#37474f" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="454" y1="100" x2="490" y2="100" stroke="#37474f" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="692" y1="100" x2="728" y2="100" stroke="#c62828" stroke-width="1.6" marker-end="url(#h)"/>
+
+  <text x="356" y="56" font-size="11" text-anchor="middle" fill="#607d8b">HLT setpoint = mash target + offset</text>
+
+  <!-- vessels -->
+  <rect x="560" y="196" width="150" height="120" rx="8" fill="#fff3e0" stroke="#ef6c00" stroke-width="1.8"/>
+  <text x="635" y="220" font-size="13" font-weight="600" text-anchor="middle" fill="#e65100">HLT</text>
+  <text x="635" y="240" font-size="11.5" text-anchor="middle" fill="#37474f">hot liquor</text>
+  <text x="635" y="262" font-size="11.5" text-anchor="middle" fill="#37474f">+ HERMS coil</text>
+
+  <rect x="150" y="196" width="150" height="120" rx="8" fill="#f1f8e9" stroke="#558b2f" stroke-width="1.8"/>
+  <text x="225" y="220" font-size="13" font-weight="600" text-anchor="middle" fill="#33691e">Mash tun</text>
+  <text x="225" y="240" font-size="11.5" text-anchor="middle" fill="#37474f">grain + wort</text>
+  <text x="225" y="262" font-size="11.5" text-anchor="middle" fill="#b71c1c">no element</text>
+
+  <!-- pump loop -->
+  <path d="M560,236 L430,236" stroke="#0277bd" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M300,286 L560,286" stroke="#0277bd" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M430,236 L300,236" stroke="#0277bd" stroke-width="2" marker-end="url(#a)"/>
+  <circle cx="430" cy="286" r="17" fill="#ffffff" stroke="#0277bd" stroke-width="2"/>
+  <text x="430" y="291" font-size="11" font-weight="600" text-anchor="middle" fill="#0277bd">P</text>
+  <text x="430" y="222" font-size="11" text-anchor="middle" fill="#0277bd">wort through the coil</text>
+  <text x="430" y="318" font-size="11" text-anchor="middle" fill="#0277bd">recirculation pump</text>
+
+  <line x1="797" y1="138" x2="797" y2="196" stroke="#c62828" stroke-width="1.6"/>
+  <line x1="797" y1="196" x2="714" y2="196" stroke="#c62828" stroke-width="1.6" marker-end="url(#h)"/>
+
+  <text x="20" y="352" font-size="11.5" fill="#455a64">Heat reaches the mash only while the pump is running — the coil is the sole path. Stopping the pump is a valve, not a throttle.</text>
+  <text x="20" y="370" font-size="11.5" fill="#455a64">DeltaTemp caps how much hotter the HLT may be than the mash, so it sets the ramp rate and the enzyme exposure in the coil.</text>
+</svg>

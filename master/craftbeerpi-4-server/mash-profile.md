@@ -34,7 +34,7 @@ All Steps have the name filed and you should enter a name for each step. e.g. Ma
 
 |                  | Description                                                                                                                                                                      | Parameters                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| MashInStep       | Heats up to the target temp and stops when temp is reached. This can be used to add e.g. Malt before moving to next step. User has to manually move to next step.                | <p><strong>Temp:</strong> Target Temp for MashInStep</p><p><strong>Sensor:</strong> Sensor to be used for this step</p><p><strong>Kettle:</strong> Kettle to be used for this step</p><p><strong>AutoMode:</strong> If yes: Kettle Logic will be switched on/off when step starts/stops</p>                                                                                                                                                                                                                                                                                                   |
+| MashInStep       | Heats up to the target temp and stops when temp is reached. This can be used to add e.g. Malt before moving to next step. User has to manually move to next step.                | <p><strong>Temp:</strong> Target Temp for MashInStep</p><p><strong>Sensor:</strong> Sensor to be used for this step</p><p><strong>Kettle:</strong> Kettle to be used for this step</p><p><strong>AutoMode:</strong> If yes: Kettle Logic will be switched on/off when step starts/stops</p><p><strong>Grain_Kg / Grain_Sensor / Mash_Water:</strong> Optional. Given all three, the step heats past <em>Temp</em> to a calculated strike temperature so the mash lands on <em>Temp</em> after doughing in — see <a href="#strike-temperature">Strike temperature</a></p><p><strong>Stop_Pump_At_Strike:</strong> Default 'Yes'. Stops the recirculation pump once strike temperature is reached, so grain goes into a still tun. Restarts when you press Next.</p> |
 | MashStep         | Heats up to the target temp and runs until Timer is done.                                                                                                                        | <p><strong>Time:</strong> Time in Minutes for Timer</p><p><strong>Temp:</strong> Target Temp for MashStep</p><p><strong>Sensor:</strong> Sensor to be used for this step</p><p><strong>Kettle:</strong> Kettle to be used for this step</p><p><strong>AutoMode:</strong> If yes: Kettle Logic will be switched on/off when step starts/stops</p>                                                                                                                                                                                                                                              |
 | BoilStep         | Heats up to the target temp and runs until Timer is done. Is sending notifications to add hops.                                                                                  | <p><strong>Time:</strong> Time in Minutes for Timer</p><p><strong>Temp:</strong> Target Temp for BoilStep</p><p><strong>Sensor:</strong> Sensor to be used for this step</p><p><strong>Kettle:</strong> Kettle to be used for this step</p><p><strong>AutoMode:</strong> If yes: Kettle Logic will be switched on/off when step starts/stops</p><p><strong>First Wort:</strong> Sends a notification for First Wort Hops on Start if set to 'Yes'</p><p><strong>Hop [1-6]:</strong> Sends up to 6 notifications for Hop alarms on specified times. Time is remaining Boil time in Minutes</p> |
 | CooldownStep     | Waits that Wort is cooled down to target temp and is sending a notification. Active Step if Actor is selected. Can switch actor on on start and off when target temp is reached. | <p><strong>Temp:</strong> Target Temp for Notification</p><p><strong>Sensor:</strong> Sensor to be used for this step</p><p><strong>Kettle:</strong> Kettle to be used for this step</p><p><strong>Actor:</strong> Actor that is switched on during cooldown if selected (can be used to trigger a magnetic valve)</p>                                                                                                                                                                                                                                                                        |
@@ -42,6 +42,41 @@ All Steps have the name filed and you should enter a name for each step. e.g. Ma
 | ToggleStep       | Switches an actor on or off                                                                                                                                                      | <p><strong>Toggle Type:</strong> defines if the specified actor is switched on or of in this step</p><p><strong>Actor:</strong> Actor that is toggled</p>                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ActorStep        | Switches an Actor on for a specified time                                                                                                                                        | <p><strong>Time:</strong> Time in Minutes for Timer</p><p><strong>Actor:</strong> Actor that is switched on for the specified time</p>                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | NotificationStep | Sends a Notification and can wait on user input. Can be used as step between Mash and boil for lautering with a required user input                                              | <p><strong>Notification:</strong> Notification text that can be specified by user</p><p><strong>AutoNext:</strong> If set to 'No', step is waiting for user input to move to next step. Otherwise, next step is automatically started.</p>                                                                                                                                                                                                                                                                                                                                                    |
+
+## Strike temperature
+
+Doughing in drops the mash temperature by several degrees, and **no feedback
+controller can prevent it** — the heat is gone into the grain before the probe
+reads it. On a HERMS the correction then has to come back slowly through the
+coil with the grain already in.
+
+The drop is predictable, so it can be pre-empted. Give the Mash In step three
+things and it heats the water *past* its target so the mash lands on it:
+
+| Property | Meaning |
+| --- | --- |
+| `Grain_Kg` | Grain bill in kilograms |
+| `Grain_Sensor` | An ambient sensor — grain sits at room temperature |
+| `Mash_Water` | Mash water in litres |
+
+Leave any of them blank and the step heats to `Temp` exactly as before.
+
+Measured on a simulated HERMS, an 8.7 °F dough-in drop became **1.1 °F**.
+
+{% hint style="info" %}
+The calculated strike temperature is clamped — it may not exceed the rest
+temperature by more than 15 °C, nor go above 82 °C in absolute terms. A
+mistyped grain bill would otherwise scald the enzymes before the grain ever went
+in, so the step declines and falls back to `Temp` rather than guessing.
+{% endhint %}
+
+When strike temperature is reached the step holds it, prompts you to dough in,
+and waits. It does **not** switch the heat off while it waits — that is exactly
+when the temperature most needs holding, because a sack of room-temperature
+grain is the single largest heat sink of the brew day.
+
+If your mash tun is controlled by `PID_HERMS`, two further things happen
+automatically; see [HERMS control](herms-control.md#mashin_deltatemp-a-wider-band-while-the-tun-holds-only-water).
 
 ## Write your first simple recipe
 
